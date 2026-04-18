@@ -22,6 +22,12 @@ Infrastructure is fully defined using Terraform with a modular design.
 
 ---
 
+## Architecture Diagram
+![Architecture](docs/diagrams/aws_multi_gov_arch.png)
+
+
+---
+
 ## Account Structure
 
 | Account        | Purpose                     |
