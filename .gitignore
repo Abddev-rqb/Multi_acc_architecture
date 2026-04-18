@@ -1,0 +1,91 @@
+##############################################
+# TERRAFORM CORE
+##############################################
+
+# Local .terraform directories
+.terraform/
+
+# Terraform state files (VERY IMPORTANT)
+*.tfstate
+*.tfstate.*
+
+# Crash logs
+crash.log
+
+# Terraform lock file (keep OR ignore based on team preference)
+# Recommended: keep it
+# .terraform.lock.hcl
+
+##############################################
+# TF VARS (SENSITIVE)
+##############################################
+
+# Do NOT commit secrets
+*.tfvars
+*.tfvars.json
+
+# Exception (if you have safe defaults)
+!terraform.tfvars.example
+
+##############################################
+# BACKEND / STATE OVERRIDES
+##############################################
+
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+##############################################
+# AWS / CREDENTIALS
+##############################################
+
+.aws/
+credentials
+config
+
+##############################################
+# ENV FILES
+##############################################
+
+.env
+.env.*
+
+##############################################
+# LOGS
+##############################################
+
+*.log
+
+##############################################
+# PYTHON (LAMBDA)
+##############################################
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+##############################################
+# ZIP FILES (OPTIONAL)
+##############################################
+
+# If lambda.zip is generated → ignore
+# If manually maintained → comment this
+lambda/*.zip
+
+##############################################
+# IDE / OS FILES
+##############################################
+
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+##############################################
+# MISC
+##############################################
+
+*.bak
+*.tmp

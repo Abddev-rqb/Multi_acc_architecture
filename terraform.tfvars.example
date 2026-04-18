@@ -1,0 +1,8 @@
+account_ids = {
+  management   = ""
+  security     = ""
+  log_archive  = ""
+  dev          = ""
+  qa           = ""
+  prod         = ""
+}
