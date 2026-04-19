@@ -106,9 +106,3 @@ Infrastructure is fully defined using Terraform with a modular design.
 - Remote backend using S3 with DynamoDB state locking
 
 ---
-
-## How to Deploy
-```bash
-terraform init
-terraform plan
-terraform apply
