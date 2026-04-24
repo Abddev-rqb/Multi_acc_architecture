@@ -1,30 +1,52 @@
 # AWS Multi-Account Secure Architecture (Terraform)
 
 ## Overview
-This project implements a production-grade AWS multi-account architecture using AWS Organizations, designed with strong security, governance, observability, and high availability principles.
-
-The system separates responsibilities across multiple AWS accounts (Management, Security, Log Archive, and Workloads) and enforces centralized control using SCPs, IAM role-based access, and automated security monitoring.
-
-Infrastructure is fully defined using Terraform with a modular design.
+This project implements a multi-account AWS architecture using AWS Organizations to enforce centralized governance, security, and observability. It separates responsibilities across Management, Security, Log Archive, and Workload accounts, using Terraform for modular and reproducible infrastructure.
 
 ---
 
-## Architecture Highlights
-- Multi-account AWS Organization (Management, Security, Log Archive, Dev, QA, Prod)
-- Service Control Policies (SCPs) for governance and guardrails
-- Centralized logging using organization-wide CloudTrail
-- KMS encryption for all sensitive data
-- GuardDuty + Security Hub for threat detection
-- EventBridge + Lambda for automated response
-- Multi-AZ VPC architecture for high availability
-- Auto Scaling workloads behind Application Load Balancer
-- Cross-region disaster recovery using S3 replication
+## What This Architecture Gets Right
+
+- **Strong Account Isolation**
+  - Clear separation of security, logging, and workloads
+  - Reduced blast radius across environments
+
+- **Centralized Governance**
+  - SCPs enforce guardrails (region restriction, root access denial, service protection)
+  - Organization-level control instead of per-account policies
+
+- **Security-First Design**
+  - GuardDuty + Security Hub enabled at organization level
+  - Centralized findings aggregation in Security account
+  - KMS-based encryption for logs and data
+
+- **Centralized Logging**
+  - Organization-wide CloudTrail → Log Archive account
+  - Immutable audit trail for all accounts
+
+- **Automated Detection & Response**
+  - EventBridge + Lambda for reactive security workflows
+
+- **Highly Available Workloads**
+  - Multi-AZ VPC design
+  - ALB + Auto Scaling for resilience
+
+- **Disaster Recovery Awareness**
+  - Cross-region S3 replication for log durability
 
 ---
 
-## Architecture Diagram
-![Architecture](docs/diagrams/aws_multi_gov_arch.png)
+## Known Limitations (Realistic Trade-offs)
 
+This is **architecture-focused**, not a fully production-hardened platform:
+
+-  No Control Tower (manual org setup instead)
+-  No Identity Center (SSO) integration
+-  No centralized secrets management (Secrets Manager not integrated)
+-  No full CI/CD pipeline for Terraform modules
+-  Limited DR scope (compute not replicated, only data/logs)
+-  No cost governance (Budgets / Cost Anomaly Detection not configured)
+-  Event-driven automation is minimal (not full SOAR)
 
 ---
 
@@ -32,77 +54,88 @@ Infrastructure is fully defined using Terraform with a modular design.
 
 | Account        | Purpose                     |
 |----------------|-----------------------------|
-| Management     | Organization & governance   |
+| Management     | Organization & SCP control  |
 | Security       | Central security monitoring |
-| Log Archive    | Centralized logging storage |
+| Log Archive    | Immutable log storage       |
 | Dev / QA / Prod| Workload environments       |
 
 ---
 
-## Security Design
+## Key Engineering Decisions
 
-### SCP Enforcement
-- No root usage
-- Region restrictions
-- Mandatory encryption
-- Protection of security services
-
-### IAM Strategy
-- Role-based access only (no IAM users)
-- Permission boundaries applied
-- Cross-account access model
-
-### Encryption
-- KMS for S3, CloudTrail, and replication
-- Encryption enforced at rest
+### 1. Organizational Isolation Over Single Account
+Chose multi-account model to:
+- Reduce blast radius
+- Enable independent security boundaries
+- Enforce governance centrally
 
 ---
 
-## Monitoring & Detection
-- AWS GuardDuty (organization-wide threat detection)
-- AWS Security Hub (centralized findings)
-- AWS Config (compliance tracking)
-- EventBridge rules for real-time alerting
-- Lambda for automated response workflows
+### 2. SCP-First Governance Model
+Used SCPs instead of relying only on IAM:
+- Prevents misconfiguration at account level
+- Enforces non-bypassable guardrails
 
 ---
 
-## Networking
-- VPC per environment (Dev, QA, Prod)
-- Public and private subnets across multiple AZs
-- NAT Gateway for outbound traffic
-- Application Load Balancer (ALB) for secure exposure
-- EC2 instances isolated in private subnets
+### 3. Centralized Logging Strategy
+All logs routed to Log Archive account:
+- Prevents tampering by workload accounts
+- Enables compliance and forensic analysis
 
 ---
 
-## Disaster Recovery
-
-**Strategy:** Active–Passive (backup-based)
-
-### Implementation
-- Cross-region S3 replication (`us-east-1 → us-west-2`)
-- Separate KMS keys per region
-
-### Objectives
-- **RPO:** Near real-time (seconds to minutes)
-- **RTO:** 30 minutes – 2 hours
-
-### Scope
-- Protects critical logs and S3 data
-- Compute recovery requires redeployment via Terraform
+### 4. Security as a Separate Account
+Security tooling isolated to:
+- Avoid privilege overlap
+- Maintain independent monitoring plane
 
 ---
 
-## Terraform Design
-- Modular architecture
-- Separate modules:
-  - global
-  - logging
-  - security
-  - network
-  - workload
+### 5. Data-Focused Disaster Recovery
+Prioritized log/data durability over full infra replication:
+- Faster implementation
+- Lower cost
+- Trade-off: slower compute recovery
 
-- Remote backend using S3 with DynamoDB state locking
+---
+
+## Architecture Flow (Simplified)
+
+![Architecture](docs/diagrams/aws_multi_gov_arch.png)
+
+
+---
+
+## Tech Stack
+
+- AWS Organizations
+- SCPs (Governance)
+- IAM (Role-based access)
+- CloudTrail, Config
+- GuardDuty, Security Hub
+- EventBridge, Lambda
+- S3 + KMS (Logging & Encryption)
+- Terraform (modular IaC)
+
+---
+
+## Outcome
+
+- Established secure multi-account foundation with enforced guardrails
+- Centralized logging and threat detection across all accounts
+- Demonstrated governance, isolation, and compliance-oriented design
+- Built modular Terraform structure suitable for scaling
+
+---
+
+## Future Improvements
+
+- Integrate AWS Control Tower for lifecycle management
+- Add AWS IAM Identity Center (SSO)
+- Implement Secrets Manager + rotation policies
+- Add cost governance (Budgets, anomaly detection)
+- Expand DR to include compute (pilot-light / warm standby)
+- Introduce CI/CD pipeline for Terraform (GitHub Actions)
 
 ---
